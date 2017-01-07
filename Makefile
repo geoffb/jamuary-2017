@@ -11,4 +11,7 @@ build:
 	@sh tools/build.sh
 
 develop:
-	sh tools/develop.sh
+	@sh tools/develop.sh
+
+lint:
+	@eslint src lib
