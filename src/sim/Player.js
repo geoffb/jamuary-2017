@@ -1,13 +1,12 @@
-const math = require("math");
+const Vector2 = require("math/Vector2");
 
 var exports = module.exports = function () {
-  this.x = 0;
-  this.y = 0;
-  this.direction = 0;
+  this.position = new Vector2(0, 0);
+  this.direction = new Vector2(1, 0);
 };
 
 let proto = exports.prototype;
 
 proto.rotate = function (angle) {
-  this.direction = (this.direction + angle + math.TAU) % math.TAU;
+  this.direction.rotate(angle);
 };

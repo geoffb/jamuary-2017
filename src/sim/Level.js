@@ -25,18 +25,17 @@ proto.init = function () {
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
   ];
 
-  this.player.x = 7.5;
-  this.player.y = 5.5;
-  this.player.direction = 0;
+  this.player.position.set(7.5, 5.5);
+  this.player.direction.set(0, -1);
 };
 
 proto.moveEntity = function (entity, distance) {
-  let dx = Math.cos(entity.direction) * distance;
-  let dy = Math.sin(entity.direction) * distance;
-  if (this.map.get(entity.x + dx, entity.y) === 0) {
-    entity.x += dx;
+  let dx = entity.direction.x * distance;
+  let dy = entity.direction.y * distance;
+  if (this.map.get(entity.position.x + dx, entity.position.y) === 0) {
+    entity.position.x += dx;
   }
-  if (this.map.get(entity.x, entity.y + dy) === 0) {
-    entity.y += dy;
+  if (this.map.get(entity.position.x, entity.position.y + dy) === 0) {
+    entity.position.y += dy;
   }
 };

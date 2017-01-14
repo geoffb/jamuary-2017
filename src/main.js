@@ -39,16 +39,17 @@ var render = function (time) {
     level.moveEntity(level.player, -SPEED_BACKWARD * dt);
   }
   if (input.getKeyState(37)) {
-    level.player.rotate(-SPEED_ROTATE * dt);
+    let angle = -SPEED_ROTATE * dt;
+    level.player.rotate(angle);
   }
   if (input.getKeyState(39)) {
-    level.player.rotate(SPEED_ROTATE * dt);
+    let angle = SPEED_ROTATE * dt;
+    level.player.rotate(angle);
   }
 
-  fp.setCamera(level.player.x, level.player.y, level.player.direction);
-
-  context.fillStyle = "cornflowerblue";
-  context.fillRect(0, 0, surface.width, surface.height);
+  fp.setCamera(
+    level.player.position.x, level.player.position.y,
+    level.player.direction.x, level.player.direction.y);
 
   fp.render(context);
 
