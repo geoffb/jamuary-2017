@@ -1,8 +1,19 @@
 var surface = document.createElement("canvas");
+surface.className = "stage pixelated";
 surface.width = 640;
 surface.height = 360;
 document.body.appendChild(surface);
 var context = surface.getContext("2d");
+
+let resize = function () {
+  let scale = Math.min(window.innerWidth / surface.width, window.innerHeight / surface.height);
+  surface.style.transform = "scale(" + scale + ", " + scale + ")";
+  surface.style.left = (window.innerWidth / 2 - (surface.width * scale) / 2) + "px";
+  surface.style.top = (window.innerHeight / 2 - (surface.height * scale) / 2) + "px";
+};
+
+resize();
+window.addEventListener("resize", resize, false);
 
 var input = require("input");
 var assets = require("scene/assets");
