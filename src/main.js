@@ -1,59 +1,56 @@
 var surface = document.createElement("canvas");
-surface.width = 800;
-surface.height = 600;
+surface.width = 640;
+surface.height = 360;
 document.body.appendChild(surface);
 var context = surface.getContext("2d");
 
-var Node = require("scene/Node");
-var Text = require("scene/Text");
-var Sprite = require("scene/Sprite");
+var input = require("input");
 var assets = require("scene/assets");
-var TileMap = require("scene/TileMap");
-var Map = require("math/Map");
+var FirstPerson = require("scene/FirstPerson");
 
-var atlas = require("./atlas.js");
+const Level = require("./sim/Level");
 
-assets.loadTextureAtlas("atlas", "images/atlas.png", atlas);
+let level = new Level();
+level.init();
 
-var map = new Map(5, 5, 32, 32);
+input.init();
 
-for (let i = 0; i < map.width; ++i) {
-  map.set(i, i, 1);
-}
+assets.loadTexture("wall", "images/wall.png");
 
-var box = new Node();
-box.x = 10;
-box.y = 10;
-box.resize(100, 100);
-box.color = "cyan";
-box.scaleY = 2;
-box.rotation = Math.PI / 4;
+var fp = new FirstPerson();
+fp.resize(surface.width, surface.height);
+fp.textureKey = "wall";
+fp.map = level.map;
 
-var title = new Text("foobarbaz", 50);
-title.x = 100;
-title.y = 100;
-title.color = "#00FF00";
-title.scaleX = 2;
-title.rotation = Math.PI / 4;
+let last = 0;
 
-var foo = new Sprite("sprite1");
-foo.x = 400;
-foo.y = 100;
-foo.rotation = Math.PI / 4;
-foo.scale = 2;
+const SPEED_FORWARD = 1 / 250;
+const SPEED_BACKWARD = 1 / 500;
+const SPEED_ROTATE = Math.PI / 2000;
 
-var tileMap = new TileMap();
-tileMap.map = map;
-tileMap.textureKey = "atlas";
+var render = function (time) {
+  let dt = time - last;
+  last = time;
 
-var render = function () {
+  if (input.getKeyState(38)) {
+    level.moveEntity(level.player, SPEED_FORWARD * dt);
+  }
+  if (input.getKeyState(40)) {
+    level.moveEntity(level.player, -SPEED_BACKWARD * dt);
+  }
+  if (input.getKeyState(37)) {
+    level.player.rotate(-SPEED_ROTATE * dt);
+  }
+  if (input.getKeyState(39)) {
+    level.player.rotate(SPEED_ROTATE * dt);
+  }
+
+  fp.setCamera(level.player.x, level.player.y, level.player.direction);
+
   context.fillStyle = "cornflowerblue";
   context.fillRect(0, 0, surface.width, surface.height);
 
-  box.render(context);
-  title.render(context);
-  foo.render(context);
-  tileMap.render(context);
+  fp.render(context);
 
   requestAnimationFrame(render);
 };
