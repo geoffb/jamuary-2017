@@ -4,6 +4,7 @@ var Player = require("./Player");
 var exports = module.exports = function () {
   this.player = new Player();
   this.map = new Map();
+  this.entities = [];
 };
 
 var proto = exports.prototype;
@@ -27,6 +28,16 @@ proto.init = function () {
 
   this.player.position.set(7.5, 5.5);
   this.player.direction.set(0, -1);
+
+  this.entities.push(
+    { x: 3.5, y: 3.5, t: 0 },
+    { x: 4.5, y: 4.5, t: 0 },
+    { x: 5.5, y: 5.5, t: 0 },
+    { x: 3.5, y: 6.5, t: 0 },
+    { x: 4.5, y: 7.5, t: 0 },
+    { x: 16.5, y: 5.5, t: 1 },
+    { x: 19.5, y: 3.5, t: 1 }
+  );
 };
 
 proto.moveEntity = function (entity, distance) {

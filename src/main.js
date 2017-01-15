@@ -31,7 +31,7 @@ assets.loadTexture("wall", "images/wall.png");
 var fp = new FirstPerson();
 fp.resize(surface.width, surface.height);
 fp.textureKey = "wall";
-fp.map = level.map;
+fp.level = level;
 
 let last = 0;
 
