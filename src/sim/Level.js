@@ -1,4 +1,5 @@
 var Map = require("math/Map");
+var collision = require("math/collision");
 var Player = require("./Player");
 
 var exports = module.exports = function () {
@@ -40,13 +41,30 @@ proto.init = function () {
   );
 };
 
+proto._testCircleMapCollision = function (cx, cy, radius) {
+  let ox = Math.floor(cx - radius);
+  let oy = Math.floor(cy - radius);
+  let tx = Math.ceil(cx + radius);
+  let ty = Math.ceil(cy + radius);
+  for (let y = oy; y <= ty; ++y) {
+    for (let x = ox; x <= tx; ++x) {
+      let tile = this.map.get(x, y);
+      if (tile === 0) { continue; }
+      if (collision.testCircleRect(cx, cy, radius, x, y, 1, 1)) {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
 proto.moveEntity = function (entity, distance) {
   let dx = entity.direction.x * distance;
   let dy = entity.direction.y * distance;
-  if (this.map.get(entity.position.x + dx, entity.position.y) === 0) {
+  if (!this._testCircleMapCollision(entity.position.x + dx, entity.position.y, entity.radius)) {
     entity.position.x += dx;
   }
-  if (this.map.get(entity.position.x, entity.position.y + dy) === 0) {
+  if (!this._testCircleMapCollision(entity.position.x, entity.position.y + dy, entity.radius)) {
     entity.position.y += dy;
   }
 };
