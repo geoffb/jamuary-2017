@@ -18,27 +18,25 @@ window.addEventListener("resize", resize, false);
 var input = require("input");
 var assets = require("scene/assets");
 var FirstPerson = require("scene/FirstPerson");
-
 const Level = require("./sim/Level");
 
 let level = new Level();
-level.init();
+level.load("level1");
 
 input.init();
 
-assets.loadTexture("wall", "images/wall.png");
+assets.loadTexture("sprites", "images/sprites.png");
 
 var fp = new FirstPerson();
 fp.resize(surface.width, surface.height);
-fp.textureKey = "wall";
+fp.textureKey = "sprites";
 fp.level = level;
-
-let last = 0;
 
 const SPEED_FORWARD = 1 / 250;
 const SPEED_BACKWARD = 1 / 500;
 const SPEED_ROTATE = Math.PI / 2000;
 
+let last = 0;
 var render = function (time) {
   let dt = time - last;
   last = time;
@@ -58,6 +56,8 @@ var render = function (time) {
     level.player.rotate(angle);
   }
 
+  level.update(dt);
+
   fp.setCamera(
     level.player.position.x, level.player.position.y,
     level.player.direction.x, level.player.direction.y);
@@ -67,4 +67,4 @@ var render = function (time) {
   requestAnimationFrame(render);
 };
 
-render();
+render(0);

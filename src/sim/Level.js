@@ -1,44 +1,102 @@
-var Map = require("math/Map");
-var collision = require("math/collision");
-var Player = require("./Player");
+const Map = require("math/Map");
+const collision = require("math/collision");
+const Random = require("math/Random");
+const Entity = require("./Entity");
+const MAPS = require("./maps");
+
+const random = new Random();
+
+const ROOM_WIDTH = 15;
+const ROOM_HEIGHT = 11;
+
+const TILE_SYMBOLS = {
+  ".": 0,
+  "#": 1
+};
+
+const ENTITY_SYMBOLS = {
+  "@": "playerStart",
+  "b": "bat"
+};
 
 var exports = module.exports = function () {
-  this.player = new Player();
+  this.levelKey = null;
+  this.player = new Entity("player");
   this.map = new Map();
   this.entities = [];
 };
 
 var proto = exports.prototype;
 
-proto.init = function () {
-  this.map.resize(32, 12);
-  this.map.cells = [
-    [1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 2, 0, 0, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1],
-    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1],
-    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-  ];
+proto._buildRoom = function (roomX, roomY, data) {
+  let map = this.map;
+  let entities = this.entities;
 
-  this.player.position.set(7.5, 5.5);
+  let ox = roomX * ROOM_WIDTH;
+  let oy = roomY * ROOM_HEIGHT;
+
+  for (let y = 0; y < ROOM_HEIGHT; ++y) {
+    for (let x = 0; x < ROOM_WIDTH; ++x) {
+      let symbol = data[y][x];
+      if (TILE_SYMBOLS.hasOwnProperty(symbol)) {
+        map.set(ox + x, oy + y, TILE_SYMBOLS[symbol]);
+      } else if (ENTITY_SYMBOLS[symbol]) {
+        map.set(ox + x, oy + y, 0);
+        let entity = new Entity(ENTITY_SYMBOLS[symbol]);
+        entity.position.set(ox + x + 0.5, oy + y + 0.5);
+        entities.push(entity);
+      }
+    }
+  }
+};
+
+proto.load = function (key) {
+  this.levelKey = key;
+
+  let level = this.getLevelData();
+  let layout = level.layout;
+
+  // Reset entities
+  let entities = this.entities;
+  entities.length = 0;
+
+  // Initialize map
+  let map = this.map;
+  map.resize(
+    layout[0].length * ROOM_WIDTH,
+    layout.length * ROOM_HEIGHT);
+  map.fill(-1);
+
+  // Iterate over layout and plug in rooms
+  for (let y = 0; y < layout.length; ++y) {
+    let row = layout[y];
+    for (let x = 0; x < row.length; ++x) {
+      let roomKey = row[x];
+      if (roomKey === ".") { continue; }
+      this._buildRoom(x, y, level.rooms[roomKey]);
+    }
+  }
+
+  for (let i = 0; i < entities.length; ++i) {
+    let entity = entities[i];
+    if (entity.type !== "playerStart") { continue; }
+    this.player.position.copy(entity.position);
+    break;
+  }
+
   this.player.direction.set(0, -1);
+  this.entities.push(this.player);
+};
 
-  this.entities.push(
-    { x: 3.5, y: 3.5, t: 0 },
-    { x: 4.5, y: 4.5, t: 0 },
-    { x: 5.5, y: 5.5, t: 0 },
-    { x: 3.5, y: 6.5, t: 0 },
-    { x: 4.5, y: 7.5, t: 0 },
-    { x: 16.5, y: 5.5, t: 1 },
-    { x: 19.5, y: 3.5, t: 1 }
-  );
+proto.getLevelData = function () {
+  return MAPS[this.levelKey];
+};
+
+proto.update = function (dt) {
+  for (let i = 0; i < this.entities.length; ++i) {
+    let entity = this.entities[i];
+    entity.update(dt);
+  }
 };
 
 proto._testCircleMapCollision = function (cx, cy, radius) {
