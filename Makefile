@@ -10,6 +10,9 @@ bootstrap:
 build:
 	@sh tools/build.sh
 
+release:
+	@sh tools/release.sh
+
 develop:
 	@sh tools/develop.sh
 
