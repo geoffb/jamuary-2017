@@ -1,11 +1,24 @@
-var surface = document.createElement("canvas");
-surface.className = "stage pixelated";
-surface.width = 640;
-surface.height = 360;
-document.body.appendChild(surface);
-var context = surface.getContext("2d");
+"use strict";
+
+const input = require("input");
+const draw = require("draw");
+const assets = require("scene/assets");
+const FirstPerson = require("scene/FirstPerson");
+const Level = require("./sim/Level");
+
+const WIDTH = 640;
+const HEIGHT = 360;
 
 const MAX_DT = 100;
+
+const SPEED_FORWARD = 1 / 250;
+const SPEED_BACKWARD = 1 / 500;
+const SPEED_ROTATE = Math.PI / 2000;
+
+let surface = draw.createSurface(WIDTH, HEIGHT);
+surface.className = "stage pixelated";
+document.body.appendChild(surface);
+let context = surface.getContext("2d");
 
 let resize = function () {
   let scale = Math.min(window.innerWidth / surface.width, window.innerHeight / surface.height);
@@ -17,11 +30,6 @@ let resize = function () {
 resize();
 window.addEventListener("resize", resize, false);
 
-var input = require("input");
-var assets = require("scene/assets");
-var FirstPerson = require("scene/FirstPerson");
-const Level = require("./sim/Level");
-
 let level = new Level();
 level.load("level1");
 
@@ -29,14 +37,10 @@ input.init();
 
 assets.loadTexture("sprites", "images/sprites.png");
 
-var fp = new FirstPerson();
+let fp = new FirstPerson();
 fp.resize(surface.width, surface.height);
 fp.textureKey = "sprites";
 fp.level = level;
-
-const SPEED_FORWARD = 1 / 250;
-const SPEED_BACKWARD = 1 / 500;
-const SPEED_ROTATE = Math.PI / 2000;
 
 let last = 0;
 var render = function (time) {
