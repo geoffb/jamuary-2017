@@ -1,4 +1,5 @@
 const Map = require("math/Map");
+const QuadTree = require("math/QuadTree");
 const collision = require("math/collision");
 const Random = require("math/Random");
 const Entity = require("./Entity");
@@ -23,6 +24,7 @@ var exports = module.exports = function () {
   this.levelKey = null;
   this.player = new Entity("player");
   this.map = new Map();
+  this.quadTree = new QuadTree();
   this.entities = [];
 };
 
@@ -93,10 +95,37 @@ proto.getLevelData = function () {
 };
 
 proto.update = function (dt) {
+  this.quadTree.clear();
+
   for (let i = 0; i < this.entities.length; ++i) {
     let entity = this.entities[i];
     entity.update(dt);
+    let bounds = entity.getBoundingBox();
+    bounds.entity = entity;
+    this.quadTree.insert(bounds);
   }
+
+  // Entity/entity collision
+  for (let i = 0; i < this.entities.length; ++i) {
+    let entity = this.entities[i];
+    let bounds = entity.getBoundingBox();
+    let nearby = this.quadTree.retrieve(bounds);
+    for (let i = 0; i < nearby.length; ++i) {
+      let otherBounds = nearby[i];
+      let other = otherBounds.entity;
+      if (entity.id === other.id) {
+        continue;
+      }
+      if (collision.testCircleCircle(
+        entity.position.x, entity.position.y, entity.radius,
+        other.position.x, other.position.y, other.radius
+      )) {
+        console.info("COLLIDE: %s with %s", entity.type, other.type);
+      }
+    }
+  }
+
+
 };
 
 proto._testCircleMapCollision = function (cx, cy, radius) {
