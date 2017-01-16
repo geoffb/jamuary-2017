@@ -43,6 +43,7 @@ var render = function (time) {
   let dt = Math.min(time - last, MAX_DT);
   last = time;
 
+  let transform = level.player.getComponent("transform");
   if (input.getKeyState(38)) {
     level.moveEntity(level.player, SPEED_FORWARD * dt);
   }
@@ -51,18 +52,18 @@ var render = function (time) {
   }
   if (input.getKeyState(37)) {
     let angle = -SPEED_ROTATE * dt;
-    level.player.rotate(angle);
+    transform.rotate(angle);
   }
   if (input.getKeyState(39)) {
     let angle = SPEED_ROTATE * dt;
-    level.player.rotate(angle);
+    transform.rotate(angle);
   }
 
   level.update(dt);
 
   fp.setCamera(
-    level.player.position.x, level.player.position.y,
-    level.player.direction.x, level.player.direction.y);
+    transform.position.x, transform.position.y,
+    transform.direction.x, transform.direction.y);
 
   fp.render(context);
 

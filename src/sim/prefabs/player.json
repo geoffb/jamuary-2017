@@ -1,0 +1,9 @@
+{
+  "transform": {},
+  "collider": {
+    "radius": 0.35
+  },
+  "mortal": {
+    "health": 3
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "transform": {},
+  "collider": {
+    "radius": 0.35
+  },
+  "mortal": {},
+  "sprite": {},
+  "animator": {
+    "frames": [0, 1],
+    "duration": 180
+  }
+}

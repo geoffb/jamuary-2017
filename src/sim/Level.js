@@ -3,7 +3,7 @@ const QuadTree = require("math/QuadTree");
 const collision = require("math/collision");
 const Random = require("math/Random");
 const Entity = require("./Entity");
-const MAPS = require("./maps");
+const LEVELS = require("./levels");
 
 const random = new Random();
 
@@ -20,7 +20,7 @@ const ENTITY_SYMBOLS = {
   "b": "bat"
 };
 
-var exports = module.exports = function () {
+let Level = module.exports = function () {
   this.levelKey = null;
   this.player = new Entity("player");
   this.map = new Map();
@@ -28,9 +28,7 @@ var exports = module.exports = function () {
   this.entities = [];
 };
 
-var proto = exports.prototype;
-
-proto._buildRoom = function (roomX, roomY, data) {
+Level.prototype._buildRoom = function (roomX, roomY, data) {
   let map = this.map;
   let entities = this.entities;
 
@@ -45,14 +43,15 @@ proto._buildRoom = function (roomX, roomY, data) {
       } else if (ENTITY_SYMBOLS[symbol]) {
         map.set(ox + x, oy + y, 0);
         let entity = new Entity(ENTITY_SYMBOLS[symbol]);
-        entity.position.set(ox + x + 0.5, oy + y + 0.5);
+        let transform = entity.getComponent("transform");
+        transform.moveTo(ox + x + 0.5, oy + y + 0.5);
         entities.push(entity);
       }
     }
   }
 };
 
-proto.load = function (key) {
+Level.prototype.load = function (key) {
   this.levelKey = key;
 
   let level = this.getLevelData();
@@ -79,56 +78,66 @@ proto.load = function (key) {
     }
   }
 
+  let playerTransform = this.player.getComponent("transform");
   for (let i = 0; i < entities.length; ++i) {
     let entity = entities[i];
     if (entity.type !== "playerStart") { continue; }
-    this.player.position.copy(entity.position);
+    playerTransform.moveToEntity(entity);
     break;
   }
+  playerTransform.direction.set(0, -1);
 
-  this.player.direction.set(0, -1);
   this.entities.push(this.player);
 };
 
-proto.getLevelData = function () {
-  return MAPS[this.levelKey];
+Level.prototype.getLevelData = function () {
+  return LEVELS[this.levelKey];
 };
 
-proto.update = function (dt) {
-  this.quadTree.clear();
+Level.prototype.update = function (dt) {
+  let entities = this.entities;
+  let quadTree = this.quadTree;
+  let colliders = [];
 
-  for (let i = 0; i < this.entities.length; ++i) {
-    let entity = this.entities[i];
-    entity.update(dt);
-    let bounds = entity.getBoundingBox();
-    bounds.entity = entity;
-    this.quadTree.insert(bounds);
+  quadTree.clear();
+
+  for (let i = 0; i < entities.length; ++i) {
+    let entity = entities[i];
+    entity.callComponents("update", dt);
+    if (entity.hasComponent("collider")) {
+      let collider = entity.getComponent("collider");
+      let bounds = collider.getBoundingBox();
+      bounds.entity = entity;
+      quadTree.insert(bounds);
+      colliders.push(entity);
+    }
   }
 
   // Entity/entity collision
-  for (let i = 0; i < this.entities.length; ++i) {
-    let entity = this.entities[i];
-    let bounds = entity.getBoundingBox();
-    let nearby = this.quadTree.retrieve(bounds);
+  for (let i = 0; i < colliders.length; ++i) {
+    let entity = colliders[i];
+    let collider = entity.getComponent("collider");
+    let bounds = collider.getBoundingBox();
+    let nearby = quadTree.retrieve(bounds);
     for (let i = 0; i < nearby.length; ++i) {
       let otherBounds = nearby[i];
       let other = otherBounds.entity;
       if (entity.id === other.id) {
         continue;
       }
-      if (collision.testCircleCircle(
-        entity.position.x, entity.position.y, entity.radius,
-        other.position.x, other.position.y, other.radius
-      )) {
+      if (collider.collidesWithEntity(other)) {
         console.info("COLLIDE: %s with %s", entity.type, other.type);
+        if (collider.trigger) {
+          entity.callComponents("trigger", other);
+        } else {
+          entity.callComponents("collide", other);
+        }
       }
     }
   }
-
-
 };
 
-proto._testCircleMapCollision = function (cx, cy, radius) {
+Level.prototype._testCircleMapCollision = function (cx, cy, radius) {
   let ox = Math.floor(cx - radius);
   let oy = Math.floor(cy - radius);
   let tx = Math.ceil(cx + radius);
@@ -145,13 +154,15 @@ proto._testCircleMapCollision = function (cx, cy, radius) {
   return false;
 };
 
-proto.moveEntity = function (entity, distance) {
-  let dx = entity.direction.x * distance;
-  let dy = entity.direction.y * distance;
-  if (!this._testCircleMapCollision(entity.position.x + dx, entity.position.y, entity.radius)) {
-    entity.position.x += dx;
+Level.prototype.moveEntity = function (entity, distance) {
+  let transform = entity.getComponent("transform");
+  let collider = entity.getComponent("collider");
+  let dx = transform.direction.x * distance;
+  let dy = transform.direction.y * distance;
+  if (!this._testCircleMapCollision(transform.position.x + dx, transform.position.y, collider.radius)) {
+    transform.position.x += dx;
   }
-  if (!this._testCircleMapCollision(entity.position.x, entity.position.y + dy, entity.radius)) {
-    entity.position.y += dy;
+  if (!this._testCircleMapCollision(transform.position.x, transform.position.y + dy, collider.radius)) {
+    transform.position.y += dy;
   }
 };

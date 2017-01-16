@@ -1,48 +1,48 @@
-const Vector2 = require("math/Vector2");
-const ENTITY_TYPES = require("./entityTypes");
+const PREFABS = require("./prefabs");
+const COMPONENTS = require("./components");
 
 let nextEntityId = 0;
 
-var exports = module.exports = function (type) {
-  let data = ENTITY_TYPES[type];
+let Entity = module.exports = function (type) {
   this.id = nextEntityId++;
   this.type = type;
-  this.position = new Vector2(0, 0);
-  this.direction = new Vector2(1, 0);
-  this.radius = 0.35;
-  this.trigger = data.trigger || false;
-  this.texture = isNaN(data.texture) ? -1 : data.texture;
-  this.frames = data.frames || null;
-  this.frameIndex = 0;
-  this.frameDuration = data.frameDuration;
-  this._frameElapsed = 0;
-};
+  this._components = [];
 
-let proto = exports.prototype;
-
-proto.rotate = function (angle) {
-  this.direction.rotate(angle);
-};
-
-proto.update = function (dt) {
-  if (this.frames) {
-    this._frameElapsed += dt;
-    if (this._frameElapsed >= this.frameDuration) {
-      this._frameElapsed -= this.frameDuration;
-      this.frameIndex = (this.frameIndex + 1) % this.frames.length;
-      this.texture = this.frames[this.frameIndex];
-    }
+  let componentData = PREFABS[type];
+  for (let componentKey in componentData) {
+    this.addComponent(componentKey, componentData[componentKey]);
   }
 };
 
-proto.getBoundingBox = function () {
-  let x = this.position.x;
-  let y = this.position.y;
-  let r = this.radius;
-  return {
-    x: x - r,
-    y: y - r,
-    width: x + r,
-    height: y + r
-  };
+Entity.prototype.hasComponent = function (componentKey) {
+  return this.hasOwnProperty(componentKey);
+};
+
+Entity.prototype.addComponent = function (componentKey, data) {
+  let component = new COMPONENTS[componentKey](data);
+  component.entity = this;
+  this._components.push(component);
+  this[componentKey] = component;
+};
+
+Entity.prototype.getComponent = function (componentKey) {
+  if (this.hasComponent(componentKey)) {
+    return this[componentKey];
+  } else {
+    console.warn("Entity of type %s does not have component %s", this.type, componentKey);
+    return null;
+  }
+};
+
+Entity.prototype.callComponents = function (signal) {
+  let args = [];
+  for (let i = 1, j = arguments.length; i < j; i++) {
+    args.push(arguments[i]);
+  }
+  for (let i = 0, j = this._components.length; i < j; ++i) {
+    let component = this._components[i];
+    if (typeof component[signal] === "function") {
+      component[signal].apply(component, args);
+    }
+  }
 };
