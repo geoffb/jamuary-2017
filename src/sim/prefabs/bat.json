@@ -4,6 +4,7 @@
     "radius": 0.35
   },
   "mortal": {},
+  "hazard": {},
   "sprite": {},
   "animator": {
     "frames": [0, 1],

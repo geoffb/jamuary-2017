@@ -5,6 +5,8 @@ const draw = require("draw");
 const assets = require("scene/assets");
 const FirstPerson = require("scene/FirstPerson");
 const Level = require("./sim/Level");
+const Health = require("./ui/Health");
+const atlasData = require("./atlas");
 
 const WIDTH = 640;
 const HEIGHT = 360;
@@ -35,12 +37,23 @@ level.load("level1");
 
 input.init();
 
+assets.loadTextureAtlas("atlas", "images/atlas.png", atlasData);
 assets.loadTexture("sprites", "images/sprites.png");
 
 let fp = new FirstPerson();
 fp.resize(surface.width, surface.height);
 fp.textureKey = "sprites";
 fp.level = level;
+
+let health = new Health();
+health.x = 4;
+health.y = 4;
+
+let mortal = level.player.getComponent("mortal");
+health.amount = mortal.health;
+mortal.on("healthChange", function (hp) {
+  health.amount = hp;
+});
 
 let last = 0;
 var render = function (time) {
@@ -70,6 +83,7 @@ var render = function (time) {
     transform.direction.x, transform.direction.y);
 
   fp.render(context);
+  health.render(context);
 
   requestAnimationFrame(render);
 };

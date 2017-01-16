@@ -19,6 +19,9 @@ Entity.prototype.hasComponent = function (componentKey) {
 };
 
 Entity.prototype.addComponent = function (componentKey, data) {
+  if (!COMPONENTS[componentKey]) {
+    throw new Error("Invalid component: " + componentKey);
+  }
   let component = new COMPONENTS[componentKey](data);
   component.entity = this;
   this._components.push(component);
