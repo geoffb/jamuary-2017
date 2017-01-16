@@ -5,6 +5,8 @@ surface.height = 360;
 document.body.appendChild(surface);
 var context = surface.getContext("2d");
 
+const MAX_DT = 100;
+
 let resize = function () {
   let scale = Math.min(window.innerWidth / surface.width, window.innerHeight / surface.height);
   surface.style.transform = "scale(" + scale + ", " + scale + ")";
@@ -38,7 +40,7 @@ const SPEED_ROTATE = Math.PI / 2000;
 
 let last = 0;
 var render = function (time) {
-  let dt = time - last;
+  let dt = Math.min(time - last, MAX_DT);
   last = time;
 
   if (input.getKeyState(38)) {
