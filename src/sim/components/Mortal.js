@@ -4,7 +4,4 @@ let Mortal = module.exports = function (data) {
 
 Mortal.prototype.damage = function (damage) {
   this.health -= damage;
-  if (this.health <= 0) {
-    // TODO: die!
-  }
 };

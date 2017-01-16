@@ -29,8 +29,7 @@ Entity.prototype.getComponent = function (componentKey) {
   if (this.hasComponent(componentKey)) {
     return this[componentKey];
   } else {
-    console.warn("Entity of type %s does not have component %s", this.type, componentKey);
-    return null;
+    throw new Error("Entity does not have component: " + componentKey);
   }
 };
 

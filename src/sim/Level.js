@@ -1,11 +1,8 @@
 const Map = require("math/Map");
 const QuadTree = require("math/QuadTree");
 const collision = require("math/collision");
-const Random = require("math/Random");
 const Entity = require("./Entity");
 const LEVELS = require("./levels");
-
-const random = new Random();
 
 const ROOM_WIDTH = 15;
 const ROOM_HEIGHT = 11;
@@ -126,7 +123,6 @@ Level.prototype.update = function (dt) {
         continue;
       }
       if (collider.collidesWithEntity(other)) {
-        console.info("COLLIDE: %s with %s", entity.type, other.type);
         if (collider.trigger) {
           entity.callComponents("trigger", other);
         } else {

@@ -2,7 +2,6 @@
 
 const object = require("util/object");
 const math = require("math");
-const draw = require("draw");
 const Node = require("scene/Node");
 
 const CELL_SIZE = 12;

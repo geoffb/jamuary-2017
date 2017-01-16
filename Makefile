@@ -10,7 +10,7 @@ bootstrap:
 build:
 	@sh tools/build.sh
 
-release:
+release: lint clean
 	@sh tools/release.sh
 
 develop:

@@ -24,7 +24,3 @@ Collider.prototype.collidesWithEntity = function (entity) {
     transform.position.x, transform.position.y, this.radius,
     bTransform.position.x, bTransform.position.y, bCollider.radius);
 };
-
-Collider.prototype.collide = function (entity) {
-  // separete
-};
