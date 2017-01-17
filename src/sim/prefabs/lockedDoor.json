@@ -1,0 +1,10 @@
+{
+  "transform": {},
+  "collider": {
+    "radius": 1,
+    "trigger": true
+  },
+  "door": {
+    "locked": true
+  }
+}

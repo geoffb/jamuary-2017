@@ -1,0 +1,13 @@
+{
+  "transform": {},
+  "collider": {
+    "radius": 0.4,
+    "trigger": true
+  },
+  "pickup": {
+    "type": "key"
+  },
+  "sprite": {
+    "texture": 2
+  }
+}

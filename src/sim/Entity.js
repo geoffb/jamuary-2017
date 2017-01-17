@@ -5,7 +5,9 @@ let nextEntityId = 0;
 
 let Entity = module.exports = function (type) {
   this.id = nextEntityId++;
+  this.active = true;
   this.type = type;
+  this.level = null;
   this._components = [];
 
   let componentData = PREFABS[type];

@@ -1,7 +1,10 @@
 exports.animator = require("./Animator");
 exports.body = require("./Body");
 exports.collider = require("./Collider");
+exports.door = require("./Door");
 exports.hazard = require("./Hazard");
+exports.inventory = require("./Inventory");
 exports.mortal = require("./Mortal");
+exports.pickup = require("./Pickup");
 exports.sprite = require("./Sprite");
 exports.transform = require("./Transform");

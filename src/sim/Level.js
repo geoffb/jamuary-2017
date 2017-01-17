@@ -14,7 +14,9 @@ const TILE_SYMBOLS = {
 
 const ENTITY_SYMBOLS = {
   "@": "playerStart",
-  "b": "bat"
+  "b": "bat",
+  "L": "lockedDoor",
+  "K": "key"
 };
 
 let Level = module.exports = function () {
@@ -23,11 +25,11 @@ let Level = module.exports = function () {
   this.map = new Map();
   this.quadTree = new QuadTree();
   this.entities = [];
+  this._entityRemoveQueue = [];
 };
 
 Level.prototype._buildRoom = function (roomX, roomY, data) {
   let map = this.map;
-  let entities = this.entities;
 
   let ox = roomX * ROOM_WIDTH;
   let oy = roomY * ROOM_HEIGHT;
@@ -42,10 +44,22 @@ Level.prototype._buildRoom = function (roomX, roomY, data) {
         let entity = new Entity(ENTITY_SYMBOLS[symbol]);
         let transform = entity.getComponent("transform");
         transform.moveTo(ox + x + 0.5, oy + y + 0.5);
-        entities.push(entity);
+        this.addEntity(entity);
       }
     }
   }
+};
+
+Level.prototype.addEntity = function (entity) {
+  entity.level = this;
+  this.entities.push(entity);
+  entity.callComponents("add");
+};
+
+Level.prototype.removeEntity = function (entity) {
+  entity.active = false;
+  entity.level = null;
+  this._entityRemoveQueue.push(entity);
 };
 
 Level.prototype.load = function (key) {
@@ -100,6 +114,7 @@ Level.prototype.update = function (dt) {
 
   for (let i = 0; i < entities.length; ++i) {
     let entity = entities[i];
+    if (!entity.active) { continue; }
     entity.callComponents("update", dt);
     if (entity.hasComponent("collider")) {
       let collider = entity.getComponent("collider");
@@ -123,7 +138,8 @@ Level.prototype.update = function (dt) {
         continue;
       }
       if (collider.collidesWithEntity(other)) {
-        if (collider.trigger) {
+        let otherCollider = other.getComponent("collider");
+        if (collider.trigger || otherCollider.trigger) {
           entity.callComponents("trigger", other);
         } else {
           entity.callComponents("collide", other);
@@ -131,6 +147,15 @@ Level.prototype.update = function (dt) {
       }
     }
   }
+
+  // Cull removed entities
+  for (let i = 0; i < this._entityRemoveQueue.length; ++i) {
+    let index = this.entities.indexOf(this._entityRemoveQueue[i]);
+    if (index !== -1) {
+      this.entities.splice(index, 1);
+    }
+  }
+  this._entityRemoveQueue.length = 0;
 };
 
 Level.prototype._testCircleMapCollision = function (cx, cy, radius) {
