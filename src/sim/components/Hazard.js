@@ -9,7 +9,6 @@ Hazard.prototype.collide = function (entity) {
   if (!entity.hasComponent("mortal")) { return; }
   let mortal = entity.getComponent("mortal");
   mortal.damage(this.damage);
-  console.log("removeOnCollide: %s, %s", this.entity.type, this.removeOnCollide);
   if (this.removeOnCollide) {
     this.entity.removeFromLevel();
   }
