@@ -12,4 +12,7 @@ object.extend(Mortal, Emitter);
 Mortal.prototype.damage = function (damage) {
   this.health -= damage;
   this.emit("healthChange", this.health);
+  if (this.health <= 0) {
+    this.entity.removeFromLevel();
+  }
 };

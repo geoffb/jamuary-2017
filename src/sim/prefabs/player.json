@@ -8,6 +8,8 @@
   },
   "inventory": {},
   "shooter": {
-    "type": "fireball"
-  }
+    "type": "fireball",
+    "impulse": 0.015
+  },
+  "states": {}
 }

@@ -3,7 +3,9 @@
   "collider": {
     "radius": 0.35
   },
-  "mortal": {},
+  "mortal": {
+    "health": 3
+  },
   "hazard": {},
   "sprite": {},
   "animator": {

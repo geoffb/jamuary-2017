@@ -1,10 +1,14 @@
 {
   "transform": {},
-  "body": {},
+  "body": {
+    "fragile": true
+  },
   "collider": {
     "radius": 0.25
   },
-  "hazard": {},
+  "hazard": {
+    "removeOnCollide": true
+  },
   "sprite": {
     "texture": 3
   }

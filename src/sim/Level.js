@@ -179,15 +179,29 @@ Level.prototype._testCircleMapCollision = function (cx, cy, radius) {
   return false;
 };
 
-Level.prototype.moveEntity = function (entity, distance) {
+Level.prototype.moveEntity = function (entity, x, y) {
   let transform = entity.getComponent("transform");
   let collider = entity.getComponent("collider");
+  let collideX = false;
+  let collideY = false;
+  if (this._testCircleMapCollision(transform.position.x + x, transform.position.y, collider.radius)) {
+    collideX = true;
+  } else {
+    transform.position.x += x;
+  }
+  if (this._testCircleMapCollision(transform.position.x, transform.position.y + y, collider.radius)) {
+    collideY = true;
+  } else {
+    transform.position.y += y;
+  }
+  if (collideX || collideY) {
+    entity.callComponents("collideMap", collideX, collideY);
+  }
+};
+
+Level.prototype.moveEntityByDirection = function (entity, distance) {
+  let transform = entity.getComponent("transform");
   let dx = transform.direction.x * distance;
   let dy = transform.direction.y * distance;
-  if (!this._testCircleMapCollision(transform.position.x + dx, transform.position.y, collider.radius)) {
-    transform.position.x += dx;
-  }
-  if (!this._testCircleMapCollision(transform.position.x, transform.position.y + dy, collider.radius)) {
-    transform.position.y += dy;
-  }
+  this.moveEntity(entity, dx, dy);
 };

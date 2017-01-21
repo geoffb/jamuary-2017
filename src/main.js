@@ -62,10 +62,10 @@ var render = function (time) {
 
   let transform = level.player.getComponent("transform");
   if (input.getKeyState(38)) {
-    level.moveEntity(level.player, SPEED_FORWARD * dt);
+    level.moveEntityByDirection(level.player, SPEED_FORWARD * dt);
   }
   if (input.getKeyState(40)) {
-    level.moveEntity(level.player, -SPEED_BACKWARD * dt);
+    level.moveEntityByDirection(level.player, -SPEED_BACKWARD * dt);
   }
   if (input.getKeyState(37)) {
     let angle = -SPEED_ROTATE * dt;
@@ -76,8 +76,11 @@ var render = function (time) {
     transform.rotate(angle);
   }
   if (input.getKeyState(32)) {
-    let shooter = level.player.getComponent("shooter");
-    shooter.shoot();
+    if (!level.player.states.has("shootCooldown")) {
+      let shooter = level.player.getComponent("shooter");
+      shooter.shoot();
+      level.player.states.add("shootCooldown", 300);
+    }
   }
 
   level.update(dt);

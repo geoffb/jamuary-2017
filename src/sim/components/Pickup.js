@@ -8,6 +8,6 @@ Pickup.prototype.trigger = function (entity) {
   if (entity.hasComponent("inventory")) {
     let inventory = entity.getComponent("inventory");
     inventory.add(this.type);
-    this.entity.level.removeEntity(this.entity);
+    this.entity.removeFromLevel();
   }
 };

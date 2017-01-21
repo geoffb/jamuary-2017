@@ -8,4 +8,5 @@ exports.mortal = require("./Mortal");
 exports.pickup = require("./Pickup");
 exports.shooter = require("./Shooter");
 exports.sprite = require("./Sprite");
+exports.states = require("./States");
 exports.transform = require("./Transform");

@@ -50,3 +50,8 @@ Entity.prototype.callComponents = function (signal) {
     }
   }
 };
+
+Entity.prototype.removeFromLevel = function () {
+  if (!this.level) { return; }
+  this.level.removeEntity(this);
+};
