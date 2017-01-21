@@ -1,3 +1,5 @@
+echo "Building game..."
+
 # Create build output folder
 mkdir -p build
 
