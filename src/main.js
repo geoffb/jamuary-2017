@@ -75,6 +75,10 @@ var render = function (time) {
     let angle = SPEED_ROTATE * dt;
     transform.rotate(angle);
   }
+  if (input.getKeyState(32)) {
+    let shooter = level.player.getComponent("shooter");
+    shooter.shoot();
+  }
 
   level.update(dt);
 

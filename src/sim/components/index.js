@@ -6,5 +6,6 @@ exports.hazard = require("./Hazard");
 exports.inventory = require("./Inventory");
 exports.mortal = require("./Mortal");
 exports.pickup = require("./Pickup");
+exports.shooter = require("./Shooter");
 exports.sprite = require("./Sprite");
 exports.transform = require("./Transform");

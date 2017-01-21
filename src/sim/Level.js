@@ -50,6 +50,10 @@ Level.prototype._buildRoom = function (roomX, roomY, data) {
   }
 };
 
+Level.prototype.createEntity = function (type) {
+  return new Entity(type);
+};
+
 Level.prototype.addEntity = function (entity) {
   entity.level = this;
   this.entities.push(entity);
@@ -98,7 +102,7 @@ Level.prototype.load = function (key) {
   }
   playerTransform.direction.set(0, -1);
 
-  this.entities.push(this.player);
+  this.addEntity(this.player);
 };
 
 Level.prototype.getLevelData = function () {

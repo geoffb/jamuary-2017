@@ -9,6 +9,10 @@ Transform.prototype.moveTo = function (x, y) {
   this.position.set(x, y);
 };
 
+Transform.prototype.moveBy = function (x, y) {
+  this.position.set(this.position.x + x, this.position.y + y);
+};
+
 Transform.prototype.moveToEntity = function (entity) {
   let transform = entity.getComponent("transform");
   this.moveTo(transform.position.x, transform.position.y);

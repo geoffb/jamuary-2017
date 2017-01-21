@@ -6,5 +6,8 @@
   "mortal": {
     "health": 3
   },
-  "inventory": {}
+  "inventory": {},
+  "shooter": {
+    "type": "fireball"
+  }
 }

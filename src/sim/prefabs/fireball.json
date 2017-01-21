@@ -1,0 +1,11 @@
+{
+  "transform": {},
+  "body": {},
+  "collider": {
+    "radius": 0.25
+  },
+  "hazard": {},
+  "sprite": {
+    "texture": 3
+  }
+}
