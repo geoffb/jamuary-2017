@@ -1,0 +1,12 @@
+{
+  "transform": {},
+  "shooter": {
+    "type": "fireball",
+    "impulse": 0.0075,
+    "distance": 0.8
+  },
+  "states": {},
+  "gargoyle": {
+    "interval": 3500
+  }
+}

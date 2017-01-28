@@ -16,7 +16,8 @@ const ENTITY_SYMBOLS = {
   "@": "playerStart",
   "b": "bat",
   "L": "lockedDoor",
-  "K": "key"
+  "K": "key",
+  "G": "gargoyle"
 };
 
 let Level = module.exports = function () {
@@ -30,6 +31,7 @@ let Level = module.exports = function () {
 
 Level.prototype._buildRoom = function (roomX, roomY, data) {
   let map = this.map;
+  let entities = [];
 
   let ox = roomX * ROOM_WIDTH;
   let oy = roomY * ROOM_HEIGHT;
@@ -44,10 +46,12 @@ Level.prototype._buildRoom = function (roomX, roomY, data) {
         let entity = new Entity(ENTITY_SYMBOLS[symbol]);
         let transform = entity.getComponent("transform");
         transform.moveTo(ox + x + 0.5, oy + y + 0.5);
-        this.addEntity(entity);
+        entities.push(entity);
       }
     }
   }
+
+  return entities;
 };
 
 Level.prototype.createEntity = function (type) {
@@ -83,15 +87,23 @@ Level.prototype.load = function (key) {
     layout.length * ROOM_HEIGHT);
   map.fill(-1);
 
+  var levelEntities = [];
+
   // Iterate over layout and plug in rooms
   for (let y = 0; y < layout.length; ++y) {
     let row = layout[y];
     for (let x = 0; x < row.length; ++x) {
       let roomKey = row[x];
       if (roomKey === ".") { continue; }
-      this._buildRoom(x, y, level.rooms[roomKey]);
+      let roomEntities = this._buildRoom(x, y, level.rooms[roomKey]);
+      levelEntities = levelEntities.concat(roomEntities);
     }
   }
+
+  // Add entities into the system *after* map as been built
+  levelEntities.forEach(function (entity) {
+    this.addEntity(entity);
+  }, this);
 
   let playerTransform = this.player.getComponent("transform");
   for (let i = 0; i < entities.length; ++i) {
