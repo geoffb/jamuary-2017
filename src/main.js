@@ -36,6 +36,7 @@ let level = new Level();
 level.load("level1");
 
 input.init();
+input.suppressKeys(32, 37, 38, 39, 40)
 
 assets.loadTextureAtlas("atlas", "images/atlas.png", atlasData);
 assets.loadTexture("sprites", "images/sprites.png");
