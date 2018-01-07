@@ -24,6 +24,7 @@ let Level = module.exports = function () {
   this.levelKey = null;
   this.player = new Entity("player");
   this.map = new Map();
+  this.speed = 1;
   this.quadTree = new QuadTree();
   this.entities = [];
   this._entityRemoveQueue = [];
@@ -125,6 +126,8 @@ Level.prototype.update = function (dt) {
   let entities = this.entities;
   let quadTree = this.quadTree;
   let colliders = [];
+
+  dt *= this.speed;
 
   quadTree.clear();
 

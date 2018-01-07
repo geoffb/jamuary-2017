@@ -24,6 +24,8 @@ surface.className = "stage pixelated";
 document.body.appendChild(surface);
 let context = surface.getContext("2d");
 
+let allowInput = true;
+
 let resize = function () {
   let scale = Math.min(window.innerWidth / surface.width, window.innerHeight / surface.height);
   surface.style.transform = "scale(" + scale + ", " + scale + ")";
@@ -74,6 +76,17 @@ mortal.on("healthChange", function (hp, delta) {
   }
 });
 
+mortal.on("die", () => {
+  allowInput = false;
+  level.speed = 0.25;
+  health.amount = 0;
+  pain.visible = true;
+  pain.alpha = 0;
+  tween.to(pain, {
+    alpha: 1
+  }, 2500);
+});
+
 let last = 0;
 var render = function (time) {
   let dt = Math.min(time - last, MAX_DT);
@@ -82,27 +95,30 @@ var render = function (time) {
   // Update tweens
   tween.update(dt);
 
-  // Handle input
   let transform = level.player.getComponent("transform");
-  if (input.getKeyState(38)) {
-    level.moveEntityByDirection(level.player, SPEED_FORWARD * dt);
-  }
-  if (input.getKeyState(40)) {
-    level.moveEntityByDirection(level.player, -SPEED_BACKWARD * dt);
-  }
-  if (input.getKeyState(37)) {
-    let angle = -SPEED_ROTATE * dt;
-    transform.rotate(angle);
-  }
-  if (input.getKeyState(39)) {
-    let angle = SPEED_ROTATE * dt;
-    transform.rotate(angle);
-  }
-  if (input.getKeyState(32)) {
-    if (!level.player.states.has("shootCooldown")) {
-      let shooter = level.player.getComponent("shooter");
-      shooter.shoot();
-      level.player.states.add("shootCooldown", 300);
+
+  // Handle input
+  if (allowInput) {
+    if (input.getKeyState(38)) {
+      level.moveEntityByDirection(level.player, SPEED_FORWARD * dt);
+    }
+    if (input.getKeyState(40)) {
+      level.moveEntityByDirection(level.player, -SPEED_BACKWARD * dt);
+    }
+    if (input.getKeyState(37)) {
+      let angle = -SPEED_ROTATE * dt;
+      transform.rotate(angle);
+    }
+    if (input.getKeyState(39)) {
+      let angle = SPEED_ROTATE * dt;
+      transform.rotate(angle);
+    }
+    if (input.getKeyState(32)) {
+      if (!level.player.states.has("shootCooldown")) {
+        let shooter = level.player.getComponent("shooter");
+        shooter.shoot();
+        level.player.states.add("shootCooldown", 300);
+      }
     }
   }
 
