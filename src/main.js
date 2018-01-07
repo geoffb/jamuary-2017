@@ -3,7 +3,9 @@
 const input = require("input");
 const draw = require("draw");
 const assets = require("scene/assets");
+const Node = require("scene/Node");
 const FirstPerson = require("scene/FirstPerson");
+const tween = require("tween");
 const Level = require("./sim/Level");
 const Health = require("./ui/Health");
 const atlasData = require("./atlas");
@@ -46,14 +48,30 @@ fp.resize(surface.width, surface.height);
 fp.textureKey = "sprites";
 fp.level = level;
 
+let pain = new Node();
+pain.color = "#D04648";
+pain.alpha = 0.9;
+pain.visible = false;
+pain.resize(surface.width, surface.height);
+
 let health = new Health();
 health.x = 4;
 health.y = 4;
 
 let mortal = level.player.getComponent("mortal");
 health.amount = mortal.health;
-mortal.on("healthChange", function (hp) {
+mortal.on("healthChange", function (hp, delta) {
+  // Update health UI
   health.amount = hp;
+
+  // Show pain overlay
+  if (delta < 0) {
+    pain.visible = true;
+    pain.alpha = 0.85;
+    tween.to(pain, {
+      alpha: 0
+    }, 200);
+  }
 });
 
 let last = 0;
@@ -61,6 +79,10 @@ var render = function (time) {
   let dt = Math.min(time - last, MAX_DT);
   last = time;
 
+  // Update tweens
+  tween.update(dt);
+
+  // Handle input
   let transform = level.player.getComponent("transform");
   if (input.getKeyState(38)) {
     level.moveEntityByDirection(level.player, SPEED_FORWARD * dt);
@@ -84,13 +106,17 @@ var render = function (time) {
     }
   }
 
+  // Update simulation
   level.update(dt);
 
+  // Camera follows the player
   fp.setCamera(
     transform.position.x, transform.position.y,
     transform.direction.x, transform.direction.y);
 
+  // Render
   fp.render(context);
+  pain.render(context);
   health.render(context);
 
   requestAnimationFrame(render);
