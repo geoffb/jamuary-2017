@@ -1,10 +1,11 @@
 {
   "transform": {},
+  "states": {},
   "collider": {
     "radius": 0.35
   },
   "mortal": {
-    "health": 3
+    "health": 1
   },
   "hazard": {},
   "sprite": {},
