@@ -9,7 +9,10 @@ const ROOM_HEIGHT = 11;
 
 const TILE_SYMBOLS = {
   ".": 0,
-  "#": 1
+  "#": 1,
+  "O": 4,
+  "0": 5,
+  "n": 6
 };
 
 const ENTITY_SYMBOLS = {
