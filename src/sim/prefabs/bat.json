@@ -12,5 +12,6 @@
   "animator": {
     "frames": [0, 1],
     "duration": 180
-  }
+  },
+  "flutter": {}
 }
